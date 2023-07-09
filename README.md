@@ -35,3 +35,9 @@
 2. Run airflow with **stock_dags.py** for run daily.
 3. Setup snowflake with some query config in file **snowflake.txt** for auto-ingestion data from S3
 - [ guides automating snowpipe for S3 service](https://docs.snowflake.com/en/user-guide/data-load-snowpipe-auto-s3)
+
+> **_Note_**: After create auto-ingestion on snowflake. In S3 bucket, Create an event notification (in tab properties -> Event notifications). And follow below steps:
+> - Events: Select the ObjectCreate (All) option.
+> - Send to: Select SQS Queue from the dropdown list.
+> - SQS: Select Add SQS queue ARN from the dropdown list.
+> - SQS queue ARN: Paste the SQS queue name from the SHOW PIPES output.
