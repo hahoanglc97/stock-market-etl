@@ -1,0 +1,84 @@
+// Create database
+-- create database stock_market;
+-----------------------------
+
+// Create schema
+-- create schema yahoo;
+-----------------------------
+
+// Create table
+-- use database stock_market;
+-- use schema yahoo;
+
+-- create or replace table yfinance_daily
+-- (
+--  Open double, 
+--  High double, 
+--  Low double, 
+--  Close double, 
+--  Adj_close double,
+--  Volume integer,
+--  stock_index varchar,
+--  date_ date
+-- );
+-----------------------------
+
+// Create object integration
+-- CREATE STORAGE INTEGRATION stock_market_s3_integration
+--   TYPE = EXTERNAL_STAGE
+--   STORAGE_PROVIDER = 'S3'
+--   ENABLED = TRUE
+--   STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::...' // the one that was created previously
+--   STORAGE_ALLOWED_LOCATIONS = ('s3://buckets/folder/');
+-----------------------------
+
+// Create state use object integration above
+-- CREATE STAGE stock_martket_s3_stage
+--   URL = 's3://hh-youtube-data-storage/stock-data-folder/'
+--   STORAGE_INTEGRATION = stock_market_s3_integration;
+-----------------------------
+
+// Check stage
+-- show stages;
+-- desc stage STOCK_MARTKET_S3_STAGE;
+
+-----------------------------
+
+// Create file format for read file form s3
+-- CREATE OR REPLACE FILE FORMAT csv_format
+--   TYPE = csv
+--   FIELD_DELIMITER = ','
+--   SKIP_HEADER = 1
+--   EMPTY_FIELD_AS_NULL = true;
+-----------------------------
+-- SHOW FILE FORMATS;
+
+
+-- DESC INTEGRATION stock_market_s3_integration;
+-----------------------------
+
+// Create pipe for auto-ingestion
+-- CREATE OR REPLACE PIPE stock_market.yahoo.stock_market_snowpipe
+-- AUTO_INGEST = true
+-- as
+--   COPY INTO stock_market.yahoo.yfinance_daily
+--   FROM (
+--       SELECT $2, $3, $4, $5, $6, $7, $8, $9
+--       FROM @stock_market.yahoo.stock_martket_s3_stage
+--   )
+--   FILE_FORMAT = CSV_FORMAT;
+-----------------------------
+
+-- show PIPES;
+
+-- desc pipe STOCK_MARKET_SNOWPIPE;
+
+-- show stages;
+
+-----------------------------
+SELECT * from stock_market.yahoo.yfinance_daily
+
+
+
+
+
